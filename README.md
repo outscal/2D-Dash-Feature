@@ -1,4 +1,4 @@
-# Feature-PlayerMovement
+# Feature-PlayerDash
 
 This is a fun 2D project that shows how another new feature can be implemented to your game such as Dash mechanism. In some 2D games you might have seen that the player can jump and dash an extra distance, similar to a double jump.
 
