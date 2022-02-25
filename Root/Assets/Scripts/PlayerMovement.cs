@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
@@ -17,6 +18,11 @@ public class PlayerMovement : MonoBehaviour
     private bool finishTimer = true;
     [SerializeField] public Text countDownText;
     public GameObject powerUpObject;
+
+    //Dash feature
+    IEnumerator dashCoroutine;
+    bool isDashing, canDash = true;
+    float direction = 1;
 
     private void Awake()
     {
@@ -59,6 +65,15 @@ public class PlayerMovement : MonoBehaviour
         currentTime = 10f;
     }
 
+    void FixedUpdate()
+    {
+        //Dash physics
+        if (isDashing)
+        {
+            player_Rb.AddForce(new Vector2(direction * 50, 0), ForceMode2D.Impulse);
+        }
+    }
+
     void Update()
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
@@ -91,6 +106,17 @@ public class PlayerMovement : MonoBehaviour
 
         Player_Movement(horizontal);
         Player_Run(horizontal);
+
+        //DASH
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash == true)
+        {
+            if (dashCoroutine != null)
+            {
+                StopCoroutine(dashCoroutine);
+            }
+            dashCoroutine = Dash(0.05f, 2f);
+            StartCoroutine(dashCoroutine);
+        }
     }
 
 
@@ -143,10 +169,12 @@ public class PlayerMovement : MonoBehaviour
         if (horizontal < 0)
         {
             scale.x = -1f * Mathf.Abs(scale.x);
+            direction = -1;
         }
         else if (horizontal > 0)
         {
             scale.x = Mathf.Abs(scale.x);
+            direction = 1;
         }
         transform.localScale = scale;
     }
@@ -156,6 +184,17 @@ public class PlayerMovement : MonoBehaviour
         Vector2 move_position = transform.position;
         move_position.x += horizontal * runspeed * Time.deltaTime;
         transform.position = move_position;
+    }
+
+    IEnumerator Dash(float dashDuration, float dashCooldown)
+    {
+        isDashing = true;
+        canDash = false;
+        yield return new WaitForSeconds(dashDuration);
+        isDashing = false;
+        player_Rb.velocity = Vector2.zero;
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
     }
 
 }
